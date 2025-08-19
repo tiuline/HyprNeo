@@ -56,7 +56,7 @@ progresso_instalacao() {
 # ================================
 
 # Vamos iniciar com o pacote newt que contem o WhipTail, essencial para a nossa instalação
-sudo pacman -S newt
+sudo pacman -S libnewt
 
 # Verificar se o usuário é root
 if [[ $EUID -ne 0 ]]; 
@@ -66,10 +66,14 @@ if [[ $EUID -ne 0 ]];
   exit 1
 fi
 
-whiptail --title "Bem-vindo ao HyprNeo" --msgbox "$ASCII_ART" 20 80
-
 # Confirmação para continuar
-if (whiptail --title "Continuar?" --yesno "Deseja iniciar a instalação do Hyprland?" 10 60); then
+if (whiptail --title "Continuar?" --yesno "\
+    $ASCII_ART 
+    
+    Bem-vindo ao HyprNeo!
+    Deseja iniciar a instalação do Hyprland?" 15 65
+    ); 
+    then
   echo "Instalação iniciada..."
 else
   whiptail --title "Cancelado" --msgbox "Instalação cancelada pelo usuário." 10 60
