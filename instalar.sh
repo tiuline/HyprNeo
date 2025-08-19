@@ -18,6 +18,16 @@ source ./pacotes/extras.sh
 # ================================
 hyprland=("hyprland")
 
+ASCII_ART=$(cat <<'EOF'
+ _   _                  _   _            
+| | | |_   _ _ __  _ __| \ | | ___  ___  
+| |_| | | | | '_ \| '__|  \| |/ _ \/ _ \ 
+|  _  | |_| | |_) | |  | |\  |  __/ (_) |  2025
+|_| |_|\__, | .__/|_|  |_| \_|\___|\___/   Arch Linux
+       |___/|_|                            
+EOF
+)
+
 # ================================
 # ==========  FUNCOES  ===========  
 # ================================
@@ -50,21 +60,13 @@ sudo pacman -S newt
 
 # Verificar se o usuário é root
 if [[ $EUID -ne 0 ]]; 
-    then whiptail --title "Permissão negada" --msgbox"\ 
+    then whiptail --title "Permissão negada" --msgbox "\ 
         Este script precisa ser executado como root!" \
         10 60
   exit 1
 fi
-whiptail --title "Bem-vindo ao HyprNeo" --msgbox" teste " 20 80
 
-whiptail --title "Bem-vindo ao HyprNeo" --msgbox"\
- _   _                  _   _            
-| | | |_   _ _ __  _ __| \ | | ___  ___  
-| |_| | | | | '_ \| '__|  \| |/ _ \/ _ \ 
-|  _  | |_| | |_) | |  | |\  |  __/ (_) |  2025
-|_| |_|\__, | .__/|_|  |_| \_|\___|\___/   Arch Linux
-       |___/|_|                            
-" 20 80
+whiptail --title "Bem-vindo ao HyprNeo" --msgbox "$ASCII_ART" 20 80
 
 # Confirmação para continuar
 if (whiptail --title "Continuar?" --yesno "Deseja iniciar a instalação do Hyprland?" 10 60); then
