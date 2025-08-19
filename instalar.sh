@@ -16,7 +16,7 @@ source ./pacotes/extras.sh
 # ================================
 # =========  VARIAVEIS  ==========  
 # ================================
-hyprland="hyprland"
+hyprland=("hyprland")
 
 # ================================
 # ==========  FUNCOES  ===========  
@@ -38,7 +38,7 @@ progresso_instalacao() {
         progresso=$((progresso + passo))
     done
     echo 100
-  } | whiptail --title "Instalando" --gauge "$mensagem" 6 60 0
+  } | whiptail --title "Instalando" --gauge "$mensagem" 10 80 0
 }
 
 # ================================
@@ -55,6 +55,7 @@ if [[ $EUID -ne 0 ]];
         10 60
   exit 1
 fi
+whiptail --title "Bem-vindo ao HyprNeo" --msgbox" teste " 20 80
 
 whiptail --title "Bem-vindo ao HyprNeo" --msgbox"\
  _   _                  _   _            
@@ -77,7 +78,7 @@ progresso_instalacao "Instalando dependencias..." "${DEPENDENCIAS[@]}"
 
 progresso_instalacao "Instalando pacotes principais..." "${PACOTES_PRINCIPAIS[@]}"
 
-progresso_instalacao "Instalando o Hyprland..." "${$hyprland}"
+progresso_instalacao "Instalando o Hyprland..." "${hyprland[@]}"
 
 # Mensagem final
 whiptail --title "Finalizado" --msgbox "Hyprland instalado com sucesso!" 10 60
