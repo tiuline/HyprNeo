@@ -9,14 +9,12 @@
 #
 # Siga e compartilhe
 
-source ./pacotes/dependencias.sh
-source ./pacotes/principais.sh
-source ./pacotes/extras.sh
-
 # ================================
 # =========  VARIAVEIS  ==========  
 # ================================
 hyprland=("hyprland")
+BASE_DIR="$(dirname "$(realpath "$0")")"
+
 
 ASCII_ART=$(cat <<'EOF'
  _   _                  _   _            
@@ -31,7 +29,7 @@ EOF
 # ================================
 # ==========  FUNCOES  ===========  
 # ================================
-progresso_instalacao() {
+progresso_instalacao_pacman() {
   local mensagem="$1"              
   shift                            
   local pcts=("$@")                
@@ -44,7 +42,27 @@ progresso_instalacao() {
       do
         echo $progresso
         echo "Instalando: $pkg" >&2
-        pacman -S --noconfirm --needed "$pkg" &>/dev/null
+        sudo pacman -S --noconfirm --needed "$pkg" &>/dev/null
+        progresso=$((progresso + passo))
+    done
+    echo 100
+  } | whiptail --title "Instalando" --gauge "$mensagem" 10 80 0
+}
+
+progresso_instalacao_yay() {
+  local mensagem="$1"              
+  shift                            
+  local pcts=("$@")                
+  local total=${#pcts[@]}
+  local passo=$((100 / total))
+  local progresso=0
+
+  {
+    for pkg in "${pcts[@]}"; 
+      do
+        echo $progresso
+        echo "Instalando: $pkg" >&2
+        yay -S --noconfirm --needed "$pkg" &>/dev/null
         progresso=$((progresso + passo))
     done
     echo 100
@@ -56,22 +74,14 @@ progresso_instalacao() {
 # ================================
 
 # Vamos iniciar com o pacote newt que contem o WhipTail, essencial para a nossa instalação
-sudo pacman -S libnewt
-
-# Verificar se o usuário é root
-if [[ $EUID -ne 0 ]]; 
-    then whiptail --title "Permissão negada" --msgbox "\ 
-        Este script precisa ser executado como root!" \
-        10 60
-  exit 1
-fi
+sudo pacman -S libnewt &>/dev/null
 
 # Confirmação para continuar
 if (whiptail --title "Continuar?" --yesno "\
     $ASCII_ART 
     
     Bem-vindo ao HyprNeo!
-    Deseja iniciar a instalação do Hyprland?" 15 65
+    Para comecar, vamos instalar o Hyprland, deseja continuar?" 15 65
     ); 
     then
   echo "Instalação iniciada..."
@@ -80,13 +90,36 @@ else
   exit 0
 fi
 
-progresso_instalacao "Instalando dependencias..." "${DEPENDENCIAS[@]}"
+# Instancia as variaveis de dependencia
+source "$BASE_DIR/pacotes/dependencias.sh"
+source "$BASE_DIR/pacotes/principais.sh"
+source "$BASE_DIR/pacotes/extras.sh"
 
-progresso_instalacao "Instalando pacotes principais..." "${PACOTES_PRINCIPAIS[@]}"
+source $BASE_DIR/instalacao/prerequisitos.sh
 
-progresso_instalacao "Instalando o Hyprland..." "${hyprland[@]}"
+# TODO
+# Instalar um SDDM depois pra testar
+
+progresso_instalacao_pacman "Instalando dependencias via YAY..." "${DEPENDENCIAS_YAY[@]}"
+progresso_instalacao_yay "Instalando dependencias via Pacman..." "${DEPENDENCIAS_PACMAN[@]}"
+
+progresso_instalacao_pacman "Instalando pacotes principais..." "${PACOTES_PRINCIPAIS[@]}"
+
+progresso_instalacao_pacman "Instalando o Hyprland..." "${hyprland[@]}"
 
 # Mensagem final
-whiptail --title "Finalizado" --msgbox "Hyprland instalado com sucesso!" 10 60
+whiptail --title "Instalando" --msgbox "Hyprland instalado com sucesso!" 10 60
 
+if (whiptail --title "Continuar?" --yesno "\
+    Agora vamos instalar o HyprNeo, deseja continuar?" 15 65
+    ); 
+    then
+  echo "Instalação iniciada..."
+else
+  whiptail --title "Cancelado" --msgbox "Instalação cancelada pelo usuário." 10 60
+  exit 0
+fi
+
+clear
+echo "Digite Hyprland para continuar"
 exit 0
