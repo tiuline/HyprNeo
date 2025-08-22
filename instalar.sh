@@ -42,7 +42,7 @@ progresso_instalacao_pacman() {
       do
         echo $progresso
         echo "Instalando: $pkg" >&2
-        sudo pacman -S --noconfirm --needed "$pkg" &>/dev/null
+        sudo pacman -S --noconfirm --needed "$pkg"
         progresso=$((progresso + passo))
     done
     echo 100
@@ -62,7 +62,7 @@ progresso_instalacao_yay() {
       do
         echo $progresso
         echo "Instalando: $pkg" >&2
-        yay -S --noconfirm --needed "$pkg" &>/dev/null
+        yay -S --noconfirm --needed "$pkg" 
         progresso=$((progresso + passo))
     done
     echo 100
@@ -73,29 +73,36 @@ progresso_instalacao_yay() {
 # ========= INSTALAÇÃO ===========
 # ================================
 
-# Vamos iniciar com o pacote newt que contem o WhipTail, essencial para a nossa instalação
-sudo pacman -S libnewt &>/dev/null
+source "$BASE_DIR/instalacao/pacotes/dependencias.sh"
+source "$BASE_DIR/instalacao/pacotes/extra.sh"
+source "$BASE_DIR/instalacao/pacotes/hyprneo_dependencias.sh"
+source "$BASE_DIR/instalacao/pacotes/principais.sh"
 
-# Confirmação para continuar
-if (whiptail --title "Continuar?" --yesno "\
-    $ASCII_ART 
-    
-    Bem-vindo ao HyprNeo!
-    Para comecar, vamos instalar o Hyprland, deseja continuar?" 15 65
-    ); 
-    then
-  echo "Instalação iniciada..."
-else
-  whiptail --title "Cancelado" --msgbox "Instalação cancelada pelo usuário." 10 60
-  exit 0
+sudo pacman -Syu # atualizar o sistema
+ 
+sudo pacman -S libnewt
+
+# Caso não tenha um AUR instalado, vai atras do YAY
+if ! command -v yay; 
+  then
+  # Install build tools
+  sudo pacman -Sy --needed --noconfirm base-devel
+  cd /tmp
+  rm -rf yay-bin
+  git clone https://aur.archlinux.org/yay-bin.git
+  cd yay-bin
+  makepkg -si --noconfirm
+  cd -
+  rm -rf yay-bin
+  cd ~
+fi
+
+# Adiciona o easter egg do pacman kkkkk
+if ! grep -q "ILoveCandy" /etc/pacman.conf; then
+  sudo sed -i '/^\[options\]/a Color\nILoveCandy' /etc/pacman.conf
 fi
 
 # Instancia as variaveis de dependencia
-source "$BASE_DIR/pacotes/dependencias.sh"
-source "$BASE_DIR/pacotes/principais.sh"
-source "$BASE_DIR/pacotes/extras.sh"
-
-source $BASE_DIR/instalacao/prerequisitos.sh
 
 # TODO
 # Instalar um SDDM depois pra testar
@@ -107,19 +114,5 @@ progresso_instalacao_pacman "Instalando pacotes principais..." "${PACOTES_PRINCI
 
 progresso_instalacao_pacman "Instalando o Hyprland..." "${hyprland[@]}"
 
-# Mensagem final
-whiptail --title "Instalando" --msgbox "Hyprland instalado com sucesso!" 10 60
-
-if (whiptail --title "Continuar?" --yesno "\
-    Agora vamos instalar o HyprNeo, deseja continuar?" 15 65
-    ); 
-    then
-  echo "Instalação iniciada..."
-else
-  whiptail --title "Cancelado" --msgbox "Instalação cancelada pelo usuário." 10 60
-  exit 0
-fi
-
-clear
 echo "Digite Hyprland para continuar"
 exit 0
