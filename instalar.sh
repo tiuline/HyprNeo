@@ -70,7 +70,6 @@ progresso_instalacao_yay() {
 # ========= INSTALAÇÃO ===========
 # ================================
 
-
 sudo pacman -Syu # atualizar o sistema
  
 sudo pacman -S libnewt

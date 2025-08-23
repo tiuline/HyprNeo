@@ -8,4 +8,4 @@ source "$BASE_DIR/pacotes/01-utilitarios.sh"
 sudo pacman -Rns "${UTILITARIOS[@]}"
 
 source "$BASE_DIR/pacotes/00-hyprland.sh"
-yay -S "${HYPRLAND[@]}"
+yay -Rns "${HYPRLAND[@]}"
