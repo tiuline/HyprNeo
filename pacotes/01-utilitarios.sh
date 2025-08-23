@@ -11,7 +11,6 @@ UTILITARIOS=(
   htop
   hyprpaper
   libinput
-  neofetch
   slurp
   swaybg
   swayidle

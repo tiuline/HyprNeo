@@ -83,16 +83,14 @@ echo "executano nvidia"
 bash "$BASE_DIR/instalacao/nvidia.sh"
 
 echo "executano hyprland"
-bash "$BASE_DIR/instalacao/hyprland.sh"
+source "$BASE_DIR/instalacao/hyprland.sh"
 
 echo "executano utilitarios"
-bash "$BASE_DIR/instalacao/utilitarios.sh"
+source "$BASE_DIR/instalacao/utilitarios.sh"
 
 echo "instalando sddm"
 sudo pacman -S sddm
 sudo systemctl enable sddm.service
-# TODO
-# Instalar um SDDM depois pra testar
 
 sudo pacman -Rns $(pacman -Qdtq)
 
