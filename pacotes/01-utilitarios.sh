@@ -1,0 +1,31 @@
+#!/bin/bash
+UTILITARIOS=(
+  brightnessctl
+  dunst
+  gnome-themes-extra
+  grim
+  gtk3
+  gtk4
+  qt5-wayland
+  qt6-wayland
+  htop
+  hyprpaper
+  libinput
+  neofetch
+  slurp
+  swaybg
+  swayidle
+  swaylock
+  ttf-dejavu
+  ttf-liberation
+  unclutter
+  wl-clipboard
+  wlr-randr
+  xdg-desktop-portal
+  xdg-desktop-portal-hyprland
+  xdg-user-dirs
+  xdg-utils
+  xf86-input-libinput
+  xkeyboard-config
+  xorg-setxkbmap
+)

@@ -37,7 +37,6 @@ progresso_instalacao_pacman() {
   local passo=$((100 / total))
   local progresso=0
 
-  {
     for pkg in "${pcts[@]}"; 
       do
         echo $progresso
@@ -45,8 +44,6 @@ progresso_instalacao_pacman() {
         sudo pacman -S --noconfirm --needed "$pkg"
         progresso=$((progresso + passo))
     done
-    echo 100
-  } | whiptail --title "Instalando" --gauge "$mensagem" 10 80 0
 }
 
 progresso_instalacao_yay() {
@@ -57,7 +54,6 @@ progresso_instalacao_yay() {
   local passo=$((100 / total))
   local progresso=0
 
-  {
     for pkg in "${pcts[@]}"; 
       do
         echo $progresso
@@ -65,54 +61,31 @@ progresso_instalacao_yay() {
         yay -S --noconfirm --needed "$pkg" 
         progresso=$((progresso + passo))
     done
-    echo 100
-  } | whiptail --title "Instalando" --gauge "$mensagem" 10 80 0
 }
 
 # ================================
 # ========= INSTALAÇÃO ===========
 # ================================
 
-source "$BASE_DIR/instalacao/pacotes/dependencias.sh"
-source "$BASE_DIR/instalacao/pacotes/extra.sh"
-source "$BASE_DIR/instalacao/pacotes/hyprneo_dependencias.sh"
-source "$BASE_DIR/instalacao/pacotes/principais.sh"
 
 sudo pacman -Syu # atualizar o sistema
  
 sudo pacman -S libnewt
 
-# Caso não tenha um AUR instalado, vai atras do YAY
-if ! command -v yay; 
-  then
-  # Install build tools
-  sudo pacman -Sy --needed --noconfirm base-devel
-  cd /tmp
-  rm -rf yay-bin
-  git clone https://aur.archlinux.org/yay-bin.git
-  cd yay-bin
-  makepkg -si --noconfirm
-  cd -
-  rm -rf yay-bin
-  cd ~
-fi
-
-# Adiciona o easter egg do pacman kkkkk
-if ! grep -q "ILoveCandy" /etc/pacman.conf; then
-  sudo sed -i '/^\[options\]/a Color\nILoveCandy' /etc/pacman.conf
-fi
-
 # Instancia as variaveis de dependencia
 
+"$BASE_DIR/instalacao/aur.sh"
+"$BASE_DIR/instalacao/nvidia.sh"
+"$BASE_DIR/instalacao/hyprland.sh"
+"$BASE_DIR/instalacao/utilitarios.sh"
+
+echo "instalando sddm"
+sudo pacman -S sddm
+sudo systemctl enable sddm.service
 # TODO
 # Instalar um SDDM depois pra testar
 
-progresso_instalacao_pacman "Instalando dependencias via YAY..." "${DEPENDENCIAS_YAY[@]}"
-progresso_instalacao_yay "Instalando dependencias via Pacman..." "${DEPENDENCIAS_PACMAN[@]}"
-
-progresso_instalacao_pacman "Instalando pacotes principais..." "${PACOTES_PRINCIPAIS[@]}"
-
-progresso_instalacao_pacman "Instalando o Hyprland..." "${hyprland[@]}"
+sudo pacman -Rns $(pacman -Qdtq)
 
 echo "Digite Hyprland para continuar"
 exit 0

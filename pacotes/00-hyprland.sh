@@ -1,9 +1,6 @@
 #!/bin/bash
-
-# Dependencias principais
-DEPENDENCIAS_YAY=(
-    ninja
-gcc
+HYPRLAND=(
+ninjagcc
 cmake
 meson
 libxcb
@@ -37,12 +34,4 @@ hyprgraphics-git
 aquamarine-git
 re2
 hyprland-qtutils
-)
-
-DEPENDENCIAS_PACMAN=(
-    aquamarine
-    hyprlang
-    hyprcursor
-    hyprutils
-    hyprgraphics
 )

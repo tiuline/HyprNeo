@@ -49,7 +49,7 @@ progresso_desinstalacao_pacman() {
   } | whiptail --title "Instalando" --gauge "$mensagem" 10 80 0
 }
 
-progresso_instalacao_yay() {
+progresso_desinstalacao_yay() {
   local mensagem="$1"              
   shift                            
   local pcts=("$@")                
@@ -78,9 +78,6 @@ source "$BASE_DIR/instalacao/pacotes/extra.sh"
 source "$BASE_DIR/instalacao/pacotes/hyprneo_dependencias.sh"
 source "$BASE_DIR/instalacao/pacotes/principais.sh"
 
-sudo pacman -Syu # atualizar o sistema
- 
-sudo pacman -S libnewt
 
 # Caso não tenha um AUR instalado, vai atras do YAY
 if ! command -v yay; 
@@ -107,12 +104,67 @@ fi
 # TODO
 # Instalar um SDDM depois pra testar
 
-progresso_desinstalacao_pacman "Instalando dependencias via YAY..." "${DEPENDENCIAS_YAY[@]}"
-progresso_instalacao_yay "Instalando dependencias via Pacman..." "${DEPENDENCIAS_PACMAN[@]}"
+progresso_desinstalacao_pacman "Desinstalando dependencias via YAY..." "${DEPENDENCIAS_YAY[@]}"
+progresso_instalacao_yay "Desinstalando dependencias via Pacman..." "${DEPENDENCIAS_PACMAN[@]}"
 
-progresso_desinstalacao_pacman "Instalando pacotes principais..." "${PACOTES_PRINCIPAIS[@]}"
+progresso_desinstalacao_pacman "Desinstalando pacotes principais..." "${PACOTES_PRINCIPAIS[@]}"
 
-progresso_desinstalacao_pacman "Instalando o Hyprland..." "${hyprland[@]}"
+progresso_desinstalacao_pacman "Desinstalando o Hyprland..." "${hyprland[@]}"
 
-echo "Digite Hyprland para continuar"
+if lspci | grep -i 'nvidia' &>/dev/null; then
+  echo "Desinstalando Drivers Nvidia"
+
+  # Determina quais pacotes foram instalados
+  PACKAGES_TO_REMOVE=(
+    "nvidia-open-dkms"
+    "nvidia-dkms"
+    "nvidia-utils"
+    "lib32-nvidia-utils"
+    "egl-wayland"
+    "libva-nvidia-driver"
+    "qt5-wayland"
+    "qt6-wayland"
+  )
+
+  # Remove pacotes (ignora os que não estão instalados)
+  yay -Rns --noconfirm "${PACKAGES_TO_REMOVE[@]}" 2>/dev/null
+
+  # Remove configuração do modprobe
+  if [ -f /etc/modprobe.d/nvidia.conf ]; then
+    sudo rm /etc/modprobe.d/nvidia.conf
+    echo "Removido: /etc/modprobe.d/nvidia.conf"
+  fi
+
+  # Restaura mkinitcpio.conf
+  MKINITCPIO_CONF="/etc/mkinitcpio.conf"
+  BACKUP_CONF="${MKINITCPIO_CONF}.backup"
+  if [ -f "$BACKUP_CONF" ]; then
+    sudo cp "$BACKUP_CONF" "$MKINITCPIO_CONF"
+    echo "Restaurado backup do mkinitcpio.conf"
+  else
+    # Se não houver backup, apenas tenta remover os módulos manualmente
+    sudo sed -i -E 's/ nvidia_drm//g; s/ nvidia_uvm//g; s/ nvidia_modeset//g; s/ nvidia//g;' "$MKINITCPIO_CONF"
+    sudo sed -i -E 's/  +/ /g' "$MKINITCPIO_CONF"
+    echo "Removidos módulos NVIDIA manualmente do mkinitcpio.conf"
+  fi
+
+  sudo mkinitcpio -P
+
+  # Remove variáveis de ambiente do Hyprland
+  HYPRLAND_CONF="$HOME/.config/hypr/hyprland.conf"
+  if [ -f "$HYPRLAND_CONF" ]; then
+    sed -i '/# NVIDIA environment variables/,+3d' "$HYPRLAND_CONF"
+    echo "Removidas variáveis NVIDIA do hyprland.conf"
+  fi
+
+  echo "Drivers NVIDIA desinstalados com sucesso."
+else
+  echo "Nenhuma GPU NVIDIA detectada."
+fi
+
+
+sudo pacman -Rns libnewt
+
+sudo pacman -Syu # atualizar o sistema
+ 
 exit 0

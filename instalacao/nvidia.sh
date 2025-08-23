@@ -12,12 +12,12 @@
 #
 # ==============================================================================
 
-# --- GPU Detection ---
+# Detectando a GPU
 if [ -n "$(lspci | grep -i 'nvidia')" ]; then
-  show_subtext "Install NVIDIA drivers..."
+  echo "Instalando Drivers Nvidia"
 
-  # --- Driver Selection ---
-  # Turing (16xx, 20xx), Ampere (30xx), Ada (40xx), and newer recommend the open-source kernel modules
+  # Selecao de Drivers
+  # Turing (16xx, 20xx), Ampere (30xx), Ada (40xx),  newer recommend the open-source kernel modules
   if echo "$(lspci | grep -i 'nvidia')" | grep -q -E "RTX [2-9][0-9]|GTX 16"; then
     NVIDIA_DRIVER_PACKAGE="nvidia-open-dkms"
   else
