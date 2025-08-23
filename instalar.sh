@@ -12,6 +12,9 @@
 # ================================
 # =========  VARIAVEIS  ==========  
 # ================================
+
+set -e
+
 hyprland=("hyprland")
 BASE_DIR="$(dirname "$(realpath "$0")")"
 
@@ -72,12 +75,18 @@ sudo pacman -Syu # atualizar o sistema
  
 sudo pacman -S libnewt
 
-# Instancia as variaveis de dependencia
+#chama os outros códigos
+echo "executano aur"
+bash "$BASE_DIR/instalacao/aur.sh"
 
-"$BASE_DIR/instalacao/aur.sh"
-"$BASE_DIR/instalacao/nvidia.sh"
-"$BASE_DIR/instalacao/hyprland.sh"
-"$BASE_DIR/instalacao/utilitarios.sh"
+echo "executano nvidia"
+bash "$BASE_DIR/instalacao/nvidia.sh"
+
+echo "executano hyprland"
+bash "$BASE_DIR/instalacao/hyprland.sh"
+
+echo "executano utilitarios"
+bash "$BASE_DIR/instalacao/utilitarios.sh"
 
 echo "instalando sddm"
 sudo pacman -S sddm
